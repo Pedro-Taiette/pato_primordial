@@ -7,40 +7,28 @@
  * number format and an optional image.
  */
 export interface DroneModel {
-  /** Unique identifier for the drone model */
   id: string;
-  /** Brand name, e.g. "PatoX" */
   brand: string;
-  /** Human friendly model name */
   model: string;
-  /** Which attributes can be measured by this drone. Each entry has a
-   * machine‐readable key and a human friendly label. */
   reads: { key: string; label: string }[];
-  /** Units used for measuring the primordial duck. Heights can be
-   * centimetres, inches or feet; weights can be grams or pounds. When a
-   * model specifies inches or feet, the values will be normalised to
-   * centimetres internally. Likewise for grams/pounds. */
   duckUnits: { altura: "cm" | "in" | "ft"; peso: "g" | "lb" };
-  /** Serial format definition for the model. A prefix denotes a fixed
-   * string, pattern outlines the allowed characters and example gives a
-   * hint to the user. */
   serialFormat: {
     prefix: string;
     pattern: string;
     example: string;
   };
-  /** Fixed serial number for this model (non-editable) */
   serialFixed: string;
-  /** Optional relative path to an image representing this drone. Place
-   * your images into `src/assets/drones` and reference them here. */
   image?: string;
+  /** Valores fixos de turbo — lidos pelo pato primordial */
+  turboStats: {
+    potencia: number;
+    estoque: number;
+    producao: number;
+  };
 }
 
 /**
- * A catalogue of all available drone models. You can freely extend
- * this array to add new models or tweak existing ones. When adding a new
- * model don't forget to update the `reads` and `serialFormat` fields to
- * match the new capabilities.
+ * Catálogo completo dos modelos de drones disponíveis.
  */
 export const DRONES: DroneModel[] = [
   {
@@ -62,8 +50,8 @@ export const DRONES: DroneModel[] = [
       example: "PTX-1234-AB",
     },
     serialFixed: "PTX-ALPHA-001",
-    // Resolve the asset path at runtime so that Vite bundles the image
     image: new URL("../assets/drones/patox-alpha.png", import.meta.url).href,
+    turboStats: { potencia: 8, estoque: 6, producao: 5 },
   },
   {
     id: "patox-sigma",
@@ -85,6 +73,7 @@ export const DRONES: DroneModel[] = [
     },
     serialFixed: "PTX-SIGMA-001",
     image: new URL("../assets/drones/patox-sigma.png", import.meta.url).href,
+    turboStats: { potencia: 6, estoque: 9, producao: 7 },
   },
   {
     id: "quacksa-gamma",
@@ -106,6 +95,7 @@ export const DRONES: DroneModel[] = [
     },
     serialFixed: "QKS-GAMMA-001",
     image: new URL("../assets/drones/quacksa-gamma.png", import.meta.url).href,
+    turboStats: { potencia: 7, estoque: 5, producao: 9 },
   },
   {
     id: "dsin-orion",
@@ -127,5 +117,6 @@ export const DRONES: DroneModel[] = [
     },
     serialFixed: "DSIN-ORION-001",
     image: new URL("../assets/drones/dsin-orion.png", import.meta.url).href,
+    turboStats: { potencia: 9, estoque: 7, producao: 8 },
   },
 ];

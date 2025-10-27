@@ -103,11 +103,11 @@ export default function DronePicker({ value, onChange }: DronePickerProps) {
 
   if (!selectedModel) return null;
 
-  const formatHint = (m: (typeof models)[number]) =>
-    `${m.serialFormat.prefix} • ${m.serialFormat.pattern} (ex.: ${m.serialFormat.example})`;
+  const turbo = selectedModel.turboStats;
 
   return (
     <div className="grid gap-6">
+      {/* Marca */}
       <Section title="Marca do Drone">
         <BrandPicker
           brand={value.brand}
@@ -115,6 +115,7 @@ export default function DronePicker({ value, onChange }: DronePickerProps) {
         />
       </Section>
 
+      {/* Modelo */}
       <Section title="Modelo">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {models.map((m) => (
@@ -143,6 +144,7 @@ export default function DronePicker({ value, onChange }: DronePickerProps) {
         </div>
       </Section>
 
+      {/* Número de Série */}
       <Section title="Número de Série">
         <input
           readOnly
@@ -151,6 +153,7 @@ export default function DronePicker({ value, onChange }: DronePickerProps) {
         />
       </Section>
 
+      {/* Atributos */}
       <Section title="Atributos">
         <div className="grid md:grid-cols-2 gap-4">
           {selectedModel.reads.map(({ key, label }) => (
@@ -165,6 +168,45 @@ export default function DronePicker({ value, onChange }: DronePickerProps) {
                 })
               }
             />
+          ))}
+        </div>
+      </Section>
+
+      {/* Turbo do Drone */}
+      <Section
+        title="Turbo do Drone"
+        description="Estatísticas fixas determinadas pelo drone ativo."
+      >
+        <div className="grid sm:grid-cols-3 gap-4">
+          {[
+            {
+              label: "Potência Turbo",
+              desc: "Velocidade que o dash dá.",
+              val: turbo.potencia,
+            },
+            {
+              label: "Estoque Turbo",
+              desc: "Quantidade total de dashs disponíveis.",
+              val: turbo.estoque,
+            },
+            {
+              label: "Produção de Turbo",
+              desc: "Velocidade de recarregamento do dash.",
+              val: turbo.producao,
+            },
+          ].map((t) => (
+            <div
+              key={t.label}
+              className="rounded-2xl border border-slate-700 bg-slate-900/50 p-4 text-center hover:border-primary/60 transition-all duration-300"
+            >
+              <div className="text-primary-light font-display text-lg font-semibold">
+                {t.label}
+              </div>
+              <div className="text-slate-400 mt-1 text-sm italic">{t.desc}</div>
+              <div className="text-3xl font-bold mt-2 text-primary animate-pulse">
+                {t.val}
+              </div>
+            </div>
           ))}
         </div>
       </Section>

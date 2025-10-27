@@ -19,10 +19,10 @@ export default function Setup() {
 
   const [originCountry, setOriginCountry] = useState("Brasil");
   const [location, setLocation] = useState({
-    city: "São Gabriel da Cachoeira",
+    city: "Marília",
     country: "Brasil",
-    lat: -0.12,
-    lon: -67.08,
+    lat: -22.2,
+    lon: -49.9,
     landmarkName: "",
   });
 
@@ -79,19 +79,48 @@ export default function Setup() {
       })
     );
 
-    const json = {
-      originCountry: originCountry.trim(),
-      drone: {
-        brand: drone.brand,
-        modelId: drone.modelId,
-        serial: selectedModel?.serialFixed ?? drone.serial,
-        readings,
-      },
-      duck,
-      location,
+    const turbo = selectedModel?.turboStats ?? {
+      potencia: 0,
+      estoque: 0,
+      producao: 0,
     };
 
-    setSetup(json);
+    const flat = {
+      // Drone
+      drone_brand: drone.brand,
+      drone_modelId: drone.modelId,
+      drone_serial: selectedModel?.serialFixed ?? drone.serial,
+      ...Object.fromEntries(
+        Object.entries(readings).map(([k, v]) => [`drone_${k}`, v])
+      ),
+
+      // Turbo (novo)
+      drone_turbo_potencia: turbo.potencia,
+      drone_turbo_estoque: turbo.estoque,
+      drone_turbo_producao: turbo.producao,
+
+      // Pato
+      pato_height: duck.heightCm,
+      pato_weight: duck.weightG,
+      pato_hibernation: duck.hibernation,
+      pato_bpm: duck.bpm,
+      pato_mutation_score: duck.mutations.score,
+      pato_mutation_tier: duck.mutations.tier,
+      pato_superpower_name: duck.superpower.name,
+      pato_superpower_description: duck.superpower.description,
+
+      // Localização e país de origem
+      origin_country: originCountry.trim(),
+      location_city: location.city,
+      location_country: location.country,
+      location_lat: location.lat,
+      location_lon: location.lon,
+      location_landmark: location.landmarkName || "",
+    };
+
+    console.log("📦 JSON FINAL (flat):", JSON.stringify(flat, null, 2));
+
+    setSetup(flat);
     navigate("/dashboard");
   }
 
@@ -157,9 +186,10 @@ export default function Setup() {
               </h3>
               <div
                 className={`transition-all duration-300 ease-out rounded-2xl border-2 
-                            ${location.landmarkName
-                              ? "border-primary/50 bg-primary/10 text-primary-light shadow-[0_0_20px_rgba(34,211,238,0.5)]"
-                              : "border-slate-800 bg-slate-900/60 text-slate-500"
+                            ${
+                              location.landmarkName
+                                ? "border-primary/50 bg-primary/10 text-primary-light shadow-[0_0_20px_rgba(34,211,238,0.5)]"
+                                : "border-slate-800 bg-slate-900/60 text-slate-500"
                             }
                             w-full px-6 py-5 text-center text-xl font-display tracking-wide
                             min-h-[90px] flex items-center justify-center`}
@@ -181,6 +211,7 @@ export default function Setup() {
               duck={duck}
               setDuck={setDuck}
               duckUnits={selectedModel.duckUnits}
+              selectedModel={selectedModel}
             />
           </Section>
         </div>
