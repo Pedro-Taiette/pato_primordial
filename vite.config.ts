@@ -5,5 +5,5 @@ const isGitHubPages = process.env.GITHUB_PAGES === "true";
 
 export default defineConfig({
   plugins: [react()],
-  base: "/pato_primordial/"
+  base: isGitHubPages ? "/pato_primordial/" : "",
 });
