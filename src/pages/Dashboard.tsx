@@ -5,8 +5,6 @@ import { Page } from "../components/ui/Page";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { DRONES } from "../data/drones";
-
-// 🦆 Importa a imagem do pato
 import patoImage from "../assets/ducks/pato.png";
 
 export default function Dashboard() {
@@ -52,6 +50,7 @@ export default function Dashboard() {
   return (
     <Page title="Dashboard">
       <div className="grid gap-6">
+        {/* TOPO */}
         <div className="flex items-center justify-between">
           <div className="text-slate-300 text-sm">
             Revise os detalhes abaixo. Clique nos títulos para expandir ou recolher.
@@ -78,6 +77,7 @@ export default function Dashboard() {
           >
             Drone
           </button>
+
           {showDrone && (
             <div className="mt-3 grid md:grid-cols-3 gap-4">
               <div className="md:col-span-2 grid gap-2 text-sm">
@@ -99,6 +99,7 @@ export default function Dashboard() {
                     {setup.drone_serial || "-"}
                   </span>
                 </div>
+
                 <div className="grid md:grid-cols-3 gap-2 mt-2">
                   {Object.entries(setup)
                     .filter(
@@ -143,27 +144,44 @@ export default function Dashboard() {
           >
             Pato
           </button>
+
           {showDuck && (
             <div className="mt-3 grid md:grid-cols-3 gap-4">
               <div className="md:col-span-2 grid gap-2 text-sm">
+                {/* Altura / Peso com unidade original */}
                 <div>
                   Altura:{" "}
                   <span className="text-slate-200 font-semibold">
                     {setup.pato_height?.toFixed(1)} cm
+                  </span>{" "}
+                  <span className="text-slate-500 text-xs italic">
+                    ({model?.duckUnits.altura === "ft"
+                      ? "convertido de pés"
+                      : model?.duckUnits.altura === "in"
+                      ? "convertido de polegadas"
+                      : "métrico"})
                   </span>
                 </div>
+
                 <div>
                   Peso:{" "}
                   <span className="text-slate-200 font-semibold">
                     {setup.pato_weight?.toFixed(1)} g
+                  </span>{" "}
+                  <span className="text-slate-500 text-xs italic">
+                    ({model?.duckUnits.peso === "lb"
+                      ? "convertido de libras"
+                      : "métrico"})
                   </span>
                 </div>
+
                 <div>
                   Estado:{" "}
                   <span className="text-slate-200 font-semibold capitalize">
                     {setup.pato_hibernation}
                   </span>
                 </div>
+
                 {setup.pato_superpower_name && (
                   <div className="grid gap-1">
                     <div>
@@ -177,12 +195,36 @@ export default function Dashboard() {
                     </div>
                   </div>
                 )}
+
                 <div className="text-sm">
                   Mutação:{" "}
                   <span className="text-slate-200 font-semibold">
                     {setup.pato_mutation_score?.toFixed(0)} / 100
                   </span>{" "}
                   ({setup.pato_mutation_tier})
+                </div>
+
+                {/* === LOCALIZAÇÃO === */}
+                <div className="mt-4 pt-3 border-t border-slate-800/60 grid gap-1">
+                  <div>
+                    <span className="text-slate-400 text-xs uppercase tracking-wide">Cidade</span>{" "}
+                    <span className="text-slate-200 font-medium">{setup.location_city}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 text-xs uppercase tracking-wide">País</span>{" "}
+                    <span className="text-slate-200 font-medium">{setup.location_country}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 text-xs uppercase tracking-wide">
+                      País de Origem
+                    </span>{" "}
+                    <span className="text-slate-200 font-medium">{setup.origin_country}</span>
+                  </div>
+                  {setup.location_landmark && (
+                    <div className="text-xs text-primary-light italic mt-1">
+                      🗺️ {setup.location_landmark}
+                    </div>
+                  )}
                 </div>
               </div>
 
