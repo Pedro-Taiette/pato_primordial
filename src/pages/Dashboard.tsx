@@ -11,6 +11,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [showDrone, setShowDrone] = useState(true);
   const [showDuck, setShowDuck] = useState(true);
+  const [copied, setCopied] = useState(false);
 
   if (!setup) {
     return (
@@ -23,23 +24,21 @@ export default function Dashboard() {
     );
   }
 
-  const model = DRONES.find((d) => d.id === setup.drone.modelId);
+  const model = DRONES.find((d) => d.id === setup.drone_modelId);
+  const jsonExport = setup;
 
-  const jsonExport = {
-    drone: setup.drone,
-    pato: {
-      ...setup.duck,
-      originCountry: setup.originCountry,
-      location: setup.location,
-    },
-  };
+  async function handleCopyJSON() {
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(jsonExport));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      alert("Falha ao copiar JSON.");
+    }
+  }
 
   function handleLaunchPreview() {
-    console.clear();
-    console.groupCollapsed("%c🐤 Pato Primordial - JSON Gerado", "color:#22d3ee;font-weight:bold;");
-    console.log(JSON.stringify(jsonExport, null, 2));
-    console.groupEnd();
-    alert("✅ JSON gerado! Veja o conteúdo no console (F12).");
+    navigate("https://seu-jogo-godot-url.com"); 
   }
 
   return (
@@ -63,7 +62,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Drone */}
         <Card>
           <button
             onClick={() => setShowDrone((v) => !v)}
@@ -77,7 +75,7 @@ export default function Dashboard() {
                 <div>
                   Marca:{" "}
                   <span className="text-slate-200 font-semibold">
-                    {setup.drone.brand}
+                    {setup.drone_brand}
                   </span>
                 </div>
                 <div>
@@ -89,21 +87,25 @@ export default function Dashboard() {
                 <div>
                   Serial:{" "}
                   <span className="text-slate-200 font-semibold">
-                    {setup.drone.serial || "-"}
+                    {setup.drone_serial || "-"}
                   </span>
                 </div>
                 <div className="grid md:grid-cols-3 gap-2 mt-2">
-                  {Object.entries(setup.drone.readings).map(([k, v]) => (
-                    <div
-                      key={k}
-                      className="rounded-xl border border-slate-700 p-3"
-                    >
-                      <div className="text-xs text-slate-400 capitalize">
-                        {k}
+                  {Object.entries(setup)
+                    .filter(
+                      ([k]) =>
+                        k.startsWith("drone_") &&
+                        !["drone_brand", "drone_modelId", "drone_serial"].includes(k) &&
+                        !k.includes("turbo")
+                    )
+                    .map(([k, v]) => (
+                      <div key={k} className="rounded-xl border border-slate-700 p-3">
+                        <div className="text-xs text-slate-400 capitalize">
+                          {k.replace("drone_", "")}
+                        </div>
+                        <div className="text-primary font-semibold">{v}/10</div>
                       </div>
-                      <div className="text-primary font-semibold">{v}/10</div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               </div>
               <div className="h-36 rounded-xl border border-slate-700 bg-slate-800/60 grid place-items-center text-slate-500 text-xs italic">
@@ -121,7 +123,6 @@ export default function Dashboard() {
           )}
         </Card>
 
-        {/* Pato */}
         <Card>
           <button
             onClick={() => setShowDuck((v) => !v)}
@@ -135,40 +136,40 @@ export default function Dashboard() {
                 <div>
                   Altura:{" "}
                   <span className="text-slate-200 font-semibold">
-                    {setup.duck.heightCm.toFixed(1)} cm
+                    {setup.pato_height?.toFixed(1)} cm
                   </span>
                 </div>
                 <div>
                   Peso:{" "}
                   <span className="text-slate-200 font-semibold">
-                    {setup.duck.weightG.toFixed(1)} g
+                    {setup.pato_weight?.toFixed(1)} g
                   </span>
                 </div>
                 <div>
                   Estado:{" "}
                   <span className="text-slate-200 font-semibold capitalize">
-                    {setup.duck.hibernation}
+                    {setup.pato_hibernation}
                   </span>
                 </div>
-                {setup.duck.superpower && (
+                {setup.pato_superpower_name && (
                   <div className="grid gap-1">
                     <div>
                       Superpoder:{" "}
                       <span className="text-slate-200 font-semibold">
-                        {setup.duck.superpower.name}
+                        {setup.pato_superpower_name}
                       </span>
                     </div>
                     <div className="text-xs text-slate-400 italic">
-                      {setup.duck.superpower.description}
+                      {setup.pato_superpower_description}
                     </div>
                   </div>
                 )}
                 <div className="text-sm">
                   Mutação:{" "}
                   <span className="text-slate-200 font-semibold">
-                    {setup.duck.mutations.score.toFixed(0)} / 100
+                    {setup.pato_mutation_score?.toFixed(0)} / 100
                   </span>{" "}
-                  ({setup.duck.mutations.tier})
+                  ({setup.pato_mutation_tier})
                 </div>
               </div>
               <div className="h-36 rounded-xl border border-slate-700 bg-slate-800/60 grid place-items-center text-slate-500 text-xs italic">
@@ -178,24 +179,13 @@ export default function Dashboard() {
           )}
         </Card>
 
-        {/* Ações */}
         <div className="pt-2 flex items-center justify-between">
-          <Button variant="ghost" onClick={() => navigate("/setup")}>Voltar</Button>
-          <Button onClick={handleLaunchPreview}>
-            Embarcar para a Missão
+          <Button variant="secondary" onClick={handleCopyJSON}>
+            {copied ? "✅ Copiado!" : "Salvar Pato Primordial"}
           </Button>
+          <Button onClick={handleLaunchPreview}>Embarcar para a Missão</Button>
         </div>
       </div>
     </Page>
-  );
-}
-
-/* === SUBCOMPONENTES === */
-function Info({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="flex items-center justify-between border-b border-slate-800/60 pb-1">
-      <span className="text-slate-400 text-xs uppercase tracking-wide">{label}</span>
-      <span className="text-slate-200 font-medium">{value}</span>
-    </div>
   );
 }
