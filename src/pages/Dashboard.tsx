@@ -7,6 +7,18 @@ import { Button } from "../components/ui/Button";
 import { DRONES } from "../data/drones";
 import patoImage from "../assets/ducks/pato.png";
 
+enum DuckSituation {
+  HIBERNATING = 0,
+  TRANCE = 1,
+  AWAKE = 2,
+}
+
+enum PowerEnum {
+  HYPER_BEAM = 0,
+  THUNDER_RAIN = 1,
+  MAGIC_FOREST = 2,
+}
+
 export default function Dashboard() {
   const { setup, clear } = useAppStore();
   const navigate = useNavigate();
@@ -26,11 +38,33 @@ export default function Dashboard() {
   }
 
   const model = DRONES.find((d) => d.id === setup.drone_modelId);
-  const jsonExport = setup;
+
+  // === MAPAS DE CONVERSÃO ===
+  const situationMap: Record<string, number> = {
+    hibernacao: DuckSituation.HIBERNATING,
+    transe: DuckSituation.TRANCE,
+    despertado: DuckSituation.AWAKE,
+  };
+
+  const powerMap: Record<string, number> = {
+    "Hyper Raio": PowerEnum.HYPER_BEAM,
+    "Tempestade Elétrica": PowerEnum.THUNDER_RAIN,
+    "Floresta Mágica": PowerEnum.MAGIC_FOREST,
+  };
+
+  // === JSON EXPORTADO COM ENUMS NUMÉRICOS ===
+  const jsonExport = {
+    ...setup,
+    pato_hibernation:
+      situationMap[String(setup.pato_hibernation).toLowerCase()] ??
+      DuckSituation.HIBERNATING,
+    pato_superpower:
+      powerMap[setup.pato_superpower_name] ?? PowerEnum.HYPER_BEAM,
+  };
 
   async function copyJSON() {
     try {
-      await navigator.clipboard.writeText(JSON.stringify(jsonExport));
+      await navigator.clipboard.writeText(JSON.stringify(jsonExport, null, 2));
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -56,7 +90,9 @@ export default function Dashboard() {
             Revise os detalhes abaixo. Clique nos títulos para expandir ou recolher.
           </div>
           <div className="flex gap-2">
-            <Button variant="ghost" onClick={() => navigate("/setup")}>Voltar</Button>
+            <Button variant="ghost" onClick={() => navigate("/setup")}>
+              Voltar
+            </Button>
             <Button
               variant="ghost"
               onClick={() => {
@@ -148,7 +184,7 @@ export default function Dashboard() {
           {showDuck && (
             <div className="mt-3 grid md:grid-cols-3 gap-4">
               <div className="md:col-span-2 grid gap-2 text-sm">
-                {/* Altura / Peso com unidade original */}
+                {/* Altura / Peso */}
                 <div>
                   Altura:{" "}
                   <span className="text-slate-200 font-semibold">
@@ -204,21 +240,31 @@ export default function Dashboard() {
                   ({setup.pato_mutation_tier})
                 </div>
 
-                {/* === LOCALIZAÇÃO === */}
+                {/* Localização */}
                 <div className="mt-4 pt-3 border-t border-slate-800/60 grid gap-1">
                   <div>
-                    <span className="text-slate-400 text-xs uppercase tracking-wide">Cidade</span>{" "}
-                    <span className="text-slate-200 font-medium">{setup.location_city}</span>
+                    <span className="text-slate-400 text-xs uppercase tracking-wide">
+                      Cidade
+                    </span>{" "}
+                    <span className="text-slate-200 font-medium">
+                      {setup.location_city}
+                    </span>
                   </div>
                   <div>
-                    <span className="text-slate-400 text-xs uppercase tracking-wide">País</span>{" "}
-                    <span className="text-slate-200 font-medium">{setup.location_country}</span>
+                    <span className="text-slate-400 text-xs uppercase tracking-wide">
+                      País
+                    </span>{" "}
+                    <span className="text-slate-200 font-medium">
+                      {setup.location_country}
+                    </span>
                   </div>
                   <div>
                     <span className="text-slate-400 text-xs uppercase tracking-wide">
                       País de Origem
                     </span>{" "}
-                    <span className="text-slate-200 font-medium">{setup.origin_country}</span>
+                    <span className="text-slate-200 font-medium">
+                      {setup.origin_country}
+                    </span>
                   </div>
                   {setup.location_landmark && (
                     <div className="text-xs text-primary-light italic mt-1">
