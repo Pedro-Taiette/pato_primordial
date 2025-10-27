@@ -88,7 +88,7 @@ export const DRONES: DroneModel[] = [
   },
   {
     id: "dsin-orion",
-    brand: "DSIN",
+    brand: "DSIN (Drone Strike Infantry Nuclear)",
     model: "Orion",
     reads: [
       { key: "velocidade", label: "Velocidade", value: 6 },
@@ -154,7 +154,7 @@ export const DRONES: DroneModel[] = [
   },
   {
     id: "dsin-apollo",
-    brand: "DSIN",
+    brand: "DSIN (Drone Strike Infantry Nuclear)",
     model: "Apollo",
     reads: [
       { key: "velocidade", label: "Velocidade", value: 7 },
@@ -220,7 +220,7 @@ export const DRONES: DroneModel[] = [
   },
   {
     id: "dsin-vostok",
-    brand: "DSIN",
+    brand: "DSIN (Drone Strike Infantry Nuclear)",
     model: "Vostok",
     reads: [
       { key: "velocidade", label: "Velocidade", value: 6 },
