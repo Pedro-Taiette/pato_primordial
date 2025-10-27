@@ -118,7 +118,7 @@ export default function Setup() {
       location_landmark: location.landmarkName || "",
     };
 
-    console.log("📦 JSON FINAL (flat):", JSON.stringify(flat, null, 2));
+    console.log("JSON FINAL (flat):", JSON.stringify(flat, null, 2));
 
     setSetup(flat);
     navigate("/dashboard");
