@@ -297,7 +297,7 @@ export default function Dashboard() {
         {/* === AÇÕES === */}
         <div className="pt-2 flex items-center justify-between">
           <Button variant="secondary" onClick={handleSave}>
-            {copied ? "✅ Copiado!" : "Salvar Pato Primordial"}
+            {copied ? "✅ Copiado!" : "Salvar Chave"}
           </Button>
           <Button onClick={handleLaunch}>Embarcar para a Missão</Button>
         </div>
