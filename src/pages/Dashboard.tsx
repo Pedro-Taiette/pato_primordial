@@ -64,14 +64,39 @@ export default function Dashboard() {
 
   // === JSON EXPORTADO COM ENUMS NUMÉRICOS ===
   const jsonExport = {
-    ...setup,
-    pato_hibernation:
-      situationMap[normalize(setup.pato_hibernation)] ??
-      DuckSituation.HIBERNATING,
-    pato_superpower:
-      powerMap[normalize(setup.pato_superpower_name)] ??
-      PowerEnum.HYPER_BEAM,
-  };
+      ...Object.fromEntries(
+        Object.entries(setup).filter(([key]) => !key.startsWith("drone_"))
+      ),
+  
+      drone_brand: setup.drone_brand,
+      drone_modelId: setup.drone_modelId,
+      drone_serial: setup.drone_serial,
+  
+      ...(model
+        ? Object.fromEntries(
+            model.reads.map((stat) => [
+              `drone_${stat.key}`,
+              stat.value,
+            ])
+          )
+        : {}),
+  
+      ...(model?.turboStats
+        ? {
+            drone_turbo_potencia: model.turboStats.potencia,
+            drone_turbo_estoque: model.turboStats.estoque,
+            drone_turbo_producao: model.turboStats.producao,
+          }
+        : {}),
+  
+      drone_model_brand: model?.brand ?? "",
+      drone_model_name: model?.model ?? "",
+  
+      pato_hibernation:
+        situationMap[normalize(setup.pato_hibernation)] ?? DuckSituation.HIBERNATING,
+      pato_superpower:
+        powerMap[normalize(setup.pato_superpower_name)] ?? PowerEnum.HYPER_BEAM,
+    };
 
   async function copyJSON() {
     try {
