@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Section } from "../ui/Section";
 import { Field } from "../ui/Field";
 import type { DroneModel } from "../../data/drones";
+import { toCm, toG } from "../../utils/conversions";
 
 export interface DuckData {
   heightInput: { value: number; unit: string };
@@ -24,6 +26,8 @@ export default function DuckForm({
   duckUnits: { altura: string; peso: string };
   selectedModel: DroneModel;
 }) {
+  const [unitSystem, setUnitSystem] = useState<"metric" | "imperial">("metric");
+
   const superpowers = [
     { name: "Tempestade Elétrica", desc: "Libera descargas elétricas poderosas." },
     { name: "Hyper Raio", desc: "Dispara feixes de energia concentrada." },
@@ -32,39 +36,106 @@ export default function DuckForm({
 
   const tiers = ["Comum", "Notável", "Rara", "Épica", "Anômala"];
 
+  function convertUnits(newSystem: "metric" | "imperial") {
+    if (newSystem === unitSystem) return;
+
+    const toImperial = (cm: number) => cm / 30.48; // pés
+    const toLb = (g: number) => g / 453.59237;
+
+    const toMetric = (ft: number) => ft * 30.48; // cm
+    const toG = (lb: number) => lb * 453.59237;
+
+    const newDuck =
+      newSystem === "imperial"
+        ? {
+            ...duck,
+            heightInput: { value: parseFloat(toImperial(duck.heightCm).toFixed(2)), unit: "ft" },
+            weightInput: { value: parseFloat(toLb(duck.weightG).toFixed(2)), unit: "lb" },
+            heightCm: duck.heightCm,
+            weightG: duck.weightG,
+          }
+        : {
+            ...duck,
+            heightInput: { value: parseFloat(toMetric(duck.heightInput.value).toFixed(1)), unit: "cm" },
+            weightInput: { value: parseFloat(toG(duck.weightInput.value).toFixed(1)), unit: "g" },
+            heightCm: toMetric(duck.heightInput.value),
+            weightG: toG(duck.weightInput.value),
+          };
+
+    setDuck(newDuck);
+    setUnitSystem(newSystem);
+  }
+
   return (
     <div className="grid gap-8">
+      {/* Sistema de Unidades */}
+      <div className="flex items-center justify-between bg-slate-800/50 border border-slate-700 rounded-xl p-3">
+        <span className="text-slate-300 text-sm font-medium">Sistema de Medidas:</span>
+        <div className="flex gap-2">
+          <button
+            onClick={() => convertUnits("metric")}
+            className={`px-4 py-1 rounded-lg border text-sm ${
+              unitSystem === "metric"
+                ? "bg-primary/10 border-primary text-primary-light"
+                : "border-slate-600 text-slate-400 hover:border-slate-500"
+            }`}
+          >
+            Métrico (cm / g)
+          </button>
+          <button
+            onClick={() => convertUnits("imperial")}
+            className={`px-4 py-1 rounded-lg border text-sm ${
+              unitSystem === "imperial"
+                ? "bg-primary/10 border-primary text-primary-light"
+                : "border-slate-600 text-slate-400 hover:border-slate-500"
+            }`}
+          >
+            Imperial (ft / lb)
+          </button>
+        </div>
+      </div>
+
       {/* Medidas */}
       <Section title="Medidas" description="Ajuste a altura e o peso do pato primordial.">
         <div className="grid sm:grid-cols-2 gap-4">
-          <Field label={`Altura (${duckUnits.altura})`}>
+          <Field label={`Altura (${duck.heightInput.unit})`}>
             <input
               type="number"
               min={1}
-              step={1}
+              step={0.1}
               value={duck.heightInput.value}
-              onChange={(e) =>
+              onChange={(e) => {
+                const value = +e.target.value;
                 setDuck({
                   ...duck,
-                  heightInput: { ...duck.heightInput, value: +e.target.value },
-                })
-              }
+                  heightInput: { ...duck.heightInput, value },
+                  heightCm:
+                    unitSystem === "metric"
+                      ? toCm(value, "cm")
+                      : toCm(value, "ft"),
+                });
+              }}
               className="bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 outline-none focus:border-primary-light"
             />
           </Field>
 
-          <Field label={`Peso (${duckUnits.peso})`}>
+          <Field label={`Peso (${duck.weightInput.unit})`}>
             <input
               type="number"
               min={1}
-              step={1}
+              step={0.1}
               value={duck.weightInput.value}
-              onChange={(e) =>
+              onChange={(e) => {
+                const value = +e.target.value;
                 setDuck({
                   ...duck,
-                  weightInput: { ...duck.weightInput, value: +e.target.value },
-                })
-              }
+                  weightInput: { ...duck.weightInput, value },
+                  weightG:
+                    unitSystem === "metric"
+                      ? toG(value, "g")
+                      : toG(value, "lb"),
+                });
+              }}
               className="bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 outline-none focus:border-primary-light"
             />
           </Field>
@@ -94,7 +165,6 @@ export default function DuckForm({
         </div>
       </Section>
 
-      {/* Batimentos (só se transe/hibernação) */}
       {(duck.hibernation === "transe" || duck.hibernation === "hibernacao") && (
         <Section title="Batimentos Cardíacos" description="Monitore a vida do Pato em transe ou hibernação.">
           <Field label="Vida (30–140)">
@@ -114,7 +184,6 @@ export default function DuckForm({
         </Section>
       )}
 
-      {/* Superpoder (só se despertado) */}
       {duck.hibernation === "despertado" && (
         <Section title="Superpoder" description="Selecione o superpoder revelado ao despertar.">
           <div className="grid sm:grid-cols-3 gap-4">
@@ -145,7 +214,6 @@ export default function DuckForm({
         </Section>
       )}
 
-      {/* Mutações */}
       <Section title="Mutações" description="Ajuste pontuação e tier da mutação.">
         <div className="w-full accent-primary">
           <Field label="Pontuação">

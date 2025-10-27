@@ -62,13 +62,61 @@ export default function Setup() {
   });
 
   async function handleMapSelect(lat: number, lon: number) {
-    const detected = await detectLandmarkSmart(lat, lon);
-    setLocation({
-      ...location,
-      lat,
-      lon,
-      landmarkName: detected.name || "",
-    });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 4000); // 4s de timeout
+
+    try {
+      const [geoData, landmark] = await Promise.allSettled([
+        fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&addressdetails=1`,
+          {
+            headers: { "User-Agent": "PatoPrimordial/1.0" },
+            signal: controller.signal,
+          }
+        ).then((r) => (r.ok ? r.json() : null)),
+        detectLandmarkSmart(lat, lon),
+      ]);
+
+      clearTimeout(timeout);
+
+      const data =
+        geoData.status === "fulfilled" && geoData.value ? geoData.value : {};
+      const detected =
+        landmark.status === "fulfilled" && landmark.value
+          ? landmark.value
+          : { name: null };
+
+      const newCity =
+        data.address?.city ||
+        data.address?.town ||
+        data.address?.village ||
+        data.address?.municipality ||
+        "";
+      const newCountry =
+        data.address?.country ||
+        data.address?.state ||
+        data.address?.region ||
+        "";
+
+      setLocation((prev) => ({
+        ...prev,
+        lat,
+        lon,
+        city: newCity || prev.city,
+        country: newCountry || prev.country,
+        landmarkName: detected.name || "",
+      }));
+
+      setOriginCountry((prev) =>
+        !prev || prev.trim().toLowerCase() === "brasil" || prev === newCountry
+          ? newCountry || prev
+          : prev
+      );
+    } catch (err) {
+      console.warn("Falha ao atualizar localização:", err);
+    } finally {
+      clearTimeout(timeout);
+    }
   }
 
   function handleSave() {
@@ -139,7 +187,7 @@ export default function Setup() {
 
           <Section
             title="Localização"
-            description="Escolha o país, cidade e defina a posição no mapa. Se cair em um ponto conhecido, ele será identificado automaticamente."
+            description="Escolha o país de origem, cidade e defina a posição no mapa. Se cair em um ponto conhecido, ele será identificado."
             card
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -147,6 +195,7 @@ export default function Setup() {
                 <input
                   value={originCountry}
                   onChange={(e) => setOriginCountry(e.target.value)}
+                  placeholder="Ex: Brasil"
                   className="bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 outline-none focus:border-primary-light w-full"
                 />
               </Field>
@@ -155,23 +204,24 @@ export default function Setup() {
                 <input
                   value={location.city}
                   onChange={(e) =>
-                    setLocation({ ...location, city: e.target.value })
+                    setLocation((prev) => ({ ...prev, city: e.target.value }))
                   }
+                  placeholder="Ex: São Paulo"
                   className="bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 outline-none focus:border-primary-light w-full"
                 />
               </Field>
 
-              <Field label="País">
+              <Field label="País (detectado)">
                 <input
                   value={location.country}
                   onChange={(e) =>
-                    setLocation({ ...location, country: e.target.value })
+                    setLocation((prev) => ({ ...prev, country: e.target.value }))
                   }
+                  placeholder="Ex: Brasil"
                   className="bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 outline-none focus:border-primary-light w-full"
                 />
               </Field>
             </div>
-
             <div className="mt-6">
               <MapSelector
                 lat={location.lat}

@@ -6,6 +6,9 @@ import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { DRONES } from "../data/drones";
 
+// 🦆 Importa a imagem do pato
+import patoImage from "../assets/ducks/pato.png";
+
 export default function Dashboard() {
   const { setup, clear } = useAppStore();
   const navigate = useNavigate();
@@ -27,7 +30,7 @@ export default function Dashboard() {
   const model = DRONES.find((d) => d.id === setup.drone_modelId);
   const jsonExport = setup;
 
-  async function handleCopyJSON() {
+  async function copyJSON() {
     try {
       await navigator.clipboard.writeText(JSON.stringify(jsonExport));
       setCopied(true);
@@ -37,8 +40,13 @@ export default function Dashboard() {
     }
   }
 
-  function handleLaunchPreview() {
-    navigate("https://seu-jogo-godot-url.com"); 
+  async function handleSave() {
+    await copyJSON();
+  }
+
+  async function handleLaunch() {
+    await copyJSON();
+    window.open("https://thiagohaga.itch.io/dronesvspatos", "_blank");
   }
 
   return (
@@ -62,6 +70,7 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* === DRONE === */}
         <Card>
           <button
             onClick={() => setShowDrone((v) => !v)}
@@ -108,21 +117,25 @@ export default function Dashboard() {
                     ))}
                 </div>
               </div>
-              <div className="h-36 rounded-xl border border-slate-700 bg-slate-800/60 grid place-items-center text-slate-500 text-xs italic">
+
+              {/* IMAGEM DO DRONE */}
+              <div className="h-40 rounded-2xl border border-primary/30 bg-slate-800/40 relative overflow-hidden flex items-center justify-center shadow-[0_0_20px_rgba(34,211,238,0.2)]">
                 {model?.image ? (
                   <img
                     src={model.image}
                     alt={`${model.brand} ${model.model}`}
-                    className="h-full w-full object-contain"
+                    className="max-h-full max-w-full object-contain p-2 transition-transform duration-300 hover:scale-105"
+                    draggable={false}
                   />
                 ) : (
-                  "Imagem do drone"
+                  <span className="text-slate-500 text-xs italic">Imagem do drone</span>
                 )}
               </div>
             </div>
           )}
         </Card>
 
+        {/* === PATO === */}
         <Card>
           <button
             onClick={() => setShowDuck((v) => !v)}
@@ -172,18 +185,26 @@ export default function Dashboard() {
                   ({setup.pato_mutation_tier})
                 </div>
               </div>
-              <div className="h-36 rounded-xl border border-slate-700 bg-slate-800/60 grid place-items-center text-slate-500 text-xs italic">
-                imagem do pato
+
+              {/* IMAGEM DO PATO */}
+              <div className="h-36 rounded-2xl border border-primary/30 bg-slate-800/40 relative overflow-hidden flex items-center justify-center shadow-[0_0_20px_rgba(34,211,238,0.2)]">
+                <img
+                  src={patoImage}
+                  alt="Pato Primordial"
+                  className="max-h-full max-w-full object-contain p-3 transition-transform duration-300 hover:scale-105"
+                  draggable={false}
+                />
               </div>
             </div>
           )}
         </Card>
 
+        {/* === AÇÕES === */}
         <div className="pt-2 flex items-center justify-between">
-          <Button variant="secondary" onClick={handleCopyJSON}>
+          <Button variant="secondary" onClick={handleSave}>
             {copied ? "✅ Copiado!" : "Salvar Pato Primordial"}
           </Button>
-          <Button onClick={handleLaunchPreview}>Embarcar para a Missão</Button>
+          <Button onClick={handleLaunch}>Embarcar para a Missão</Button>
         </div>
       </div>
     </Page>
