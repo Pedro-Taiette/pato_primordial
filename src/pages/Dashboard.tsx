@@ -39,6 +39,16 @@ export default function Dashboard() {
 
   const model = DRONES.find((d) => d.id === setup.drone_modelId);
 
+  function normalize(str?: string) {
+    return str
+      ? str
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase()
+          .trim()
+      : "";
+  }
+
   // === MAPAS DE CONVERSÃO ===
   const situationMap: Record<string, number> = {
     hibernacao: DuckSituation.HIBERNATING,
@@ -47,19 +57,20 @@ export default function Dashboard() {
   };
 
   const powerMap: Record<string, number> = {
-    "Hyper Raio": PowerEnum.HYPER_BEAM,
-    "Tempestade Elétrica": PowerEnum.THUNDER_RAIN,
-    "Floresta Mágica": PowerEnum.MAGIC_FOREST,
+    [normalize("Hyper Raio")]: PowerEnum.HYPER_BEAM,
+    [normalize("Tempestade Eletrica")]: PowerEnum.THUNDER_RAIN,
+    [normalize("Floresta Magica")]: PowerEnum.MAGIC_FOREST,
   };
 
   // === JSON EXPORTADO COM ENUMS NUMÉRICOS ===
   const jsonExport = {
     ...setup,
     pato_hibernation:
-      situationMap[String(setup.pato_hibernation).toLowerCase()] ??
+      situationMap[normalize(setup.pato_hibernation)] ??
       DuckSituation.HIBERNATING,
     pato_superpower:
-      powerMap[setup.pato_superpower_name] ?? PowerEnum.HYPER_BEAM,
+      powerMap[normalize(setup.pato_superpower_name)] ??
+      PowerEnum.HYPER_BEAM,
   };
 
   async function copyJSON() {
@@ -114,8 +125,9 @@ export default function Dashboard() {
             Drone
           </button>
 
-          {showDrone && (
+          {showDrone && model && (
             <div className="mt-3 grid md:grid-cols-3 gap-4">
+              {/* Dados gerais */}
               <div className="md:col-span-2 grid gap-2 text-sm">
                 <div>
                   Marca:{" "}
@@ -126,7 +138,7 @@ export default function Dashboard() {
                 <div>
                   Modelo:{" "}
                   <span className="text-slate-200 font-semibold">
-                    {model?.brand} {model?.model}
+                    {model.brand} {model.model}
                   </span>
                 </div>
                 <div>
@@ -136,22 +148,19 @@ export default function Dashboard() {
                   </span>
                 </div>
 
+                {/* Stats corretos do modelo */}
                 <div className="grid md:grid-cols-3 gap-2 mt-2">
-                  {Object.entries(setup)
-                    .filter(
-                      ([k]) =>
-                        k.startsWith("drone_") &&
-                        !["drone_brand", "drone_modelId", "drone_serial"].includes(k) &&
-                        !k.includes("turbo")
-                    )
-                    .map(([k, v]) => (
-                      <div key={k} className="rounded-xl border border-slate-700 p-3">
-                        <div className="text-xs text-slate-400 capitalize">
-                          {k.replace("drone_", "")}
-                        </div>
-                        <div className="text-primary font-semibold">{v}/10</div>
+                  {model.reads.map((stat) => (
+                    <div
+                      key={stat.key}
+                      className="rounded-xl border border-slate-700 p-3"
+                    >
+                      <div className="text-xs text-slate-400 capitalize">
+                        {stat.label}
                       </div>
-                    ))}
+                      <div className="text-primary font-semibold">{stat.value}/10</div>
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -184,7 +193,6 @@ export default function Dashboard() {
           {showDuck && (
             <div className="mt-3 grid md:grid-cols-3 gap-4">
               <div className="md:col-span-2 grid gap-2 text-sm">
-                {/* Altura / Peso */}
                 <div>
                   Altura:{" "}
                   <span className="text-slate-200 font-semibold">
@@ -240,7 +248,6 @@ export default function Dashboard() {
                   ({setup.pato_mutation_tier})
                 </div>
 
-                {/* Localização */}
                 <div className="mt-4 pt-3 border-t border-slate-800/60 grid gap-1">
                   <div>
                     <span className="text-slate-400 text-xs uppercase tracking-wide">
