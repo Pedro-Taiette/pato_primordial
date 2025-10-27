@@ -5,30 +5,32 @@ on:
     branches: [main]
 
 permissions:
-  contents: write 
+  contents: write
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout código
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install dependencies
+      - name: Instalar dependências
         run: npm ci
 
-      - name: Build
-        run: npm run build
+      - name: Build com base de GitHub Pages
+        run: |
+          npm install cross-env --save-dev
+          npx cross-env GITHUB_PAGES=true npm run build
 
-      - name: List build output
-        run: ls -la dist
+      - name: Verificar saída do build
+        run: ls -R dist
 
-      - name: Deploy to GitHub Pages
+      - name: Publicar no GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
