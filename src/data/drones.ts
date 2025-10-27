@@ -1,16 +1,8 @@
-/**
- * Definitions for all available drone models in the Pato Primordial
- * application. By centralising this data in a single module it becomes
- * straightforward to add new models or adjust existing parameters without
- * touching business logic. Each model describes its brand, display name,
- * measured attributes, unit configuration for primordial ducks, serial
- * number format and an optional image.
- */
 export interface DroneModel {
   id: string;
   brand: string;
   model: string;
-  reads: { key: string; label: string }[];
+  reads: { key: string; label: string; value: number }[]; // <-- cada atributo tem valor fixo
   duckUnits: { altura: "cm" | "in" | "ft"; peso: "g" | "lb" };
   serialFormat: {
     prefix: string;
@@ -19,7 +11,6 @@ export interface DroneModel {
   };
   serialFixed: string;
   image?: string;
-  /** Valores fixos de turbo — lidos pelo pato primordial */
   turboStats: {
     potencia: number;
     estoque: number;
@@ -27,21 +18,19 @@ export interface DroneModel {
   };
 }
 
-/**
- * Catálogo completo dos modelos de drones disponíveis.
- */
+// Balanceamento: somatório de atributos próximos (36–40)
 export const DRONES: DroneModel[] = [
   {
     id: "patox-alpha",
     brand: "PatoX",
     model: "Alpha",
     reads: [
-      { key: "velocidade", label: "Velocidade" },
-      { key: "danoTiro", label: "Dano de Tiro" },
-      { key: "taxaTiro", label: "Taxa de Tiro" },
-      { key: "cortaVento", label: "Corta Vento" },
-      { key: "resistencia", label: "Resistência" },
-      { key: "precisao", label: "Precisão" },
+      { key: "velocidade", label: "Velocidade", value: 9 },
+      { key: "danoTiro", label: "Dano de Tiro", value: 7 },
+      { key: "taxaTiro", label: "Taxa de Tiro", value: 6 },
+      { key: "cortaVento", label: "Corta Vento", value: 5 },
+      { key: "resistencia", label: "Resistência", value: 6 },
+      { key: "precisao", label: "Precisão", value: 7 },
     ],
     duckUnits: { altura: "cm", peso: "g" },
     serialFormat: {
@@ -58,12 +47,12 @@ export const DRONES: DroneModel[] = [
     brand: "PatoX",
     model: "Sigma",
     reads: [
-      { key: "velocidade", label: "Velocidade" },
-      { key: "danoTiro", label: "Dano de Tiro" },
-      { key: "taxaTiro", label: "Taxa de Tiro" },
-      { key: "cortaVento", label: "Corta Vento" },
-      { key: "resistencia", label: "Resistência" },
-      { key: "precisao", label: "Precisão" },
+      { key: "velocidade", label: "Velocidade", value: 7 },
+      { key: "danoTiro", label: "Dano de Tiro", value: 8 },
+      { key: "taxaTiro", label: "Taxa de Tiro", value: 7 },
+      { key: "cortaVento", label: "Corta Vento", value: 6 },
+      { key: "resistencia", label: "Resistência", value: 5 },
+      { key: "precisao", label: "Precisão", value: 7 },
     ],
     duckUnits: { altura: "in", peso: "lb" },
     serialFormat: {
@@ -80,12 +69,12 @@ export const DRONES: DroneModel[] = [
     brand: "Quacksa",
     model: "Gamma",
     reads: [
-      { key: "velocidade", label: "Velocidade" },
-      { key: "danoTiro", label: "Dano de Tiro" },
-      { key: "taxaTiro", label: "Taxa de Tiro" },
-      { key: "cortaVento", label: "Corta Vento" },
-      { key: "resistencia", label: "Resistência" },
-      { key: "precisao", label: "Precisão" },
+      { key: "velocidade", label: "Velocidade", value: 8 },
+      { key: "danoTiro", label: "Dano de Tiro", value: 6 },
+      { key: "taxaTiro", label: "Taxa de Tiro", value: 8 },
+      { key: "cortaVento", label: "Corta Vento", value: 7 },
+      { key: "resistencia", label: "Resistência", value: 5 },
+      { key: "precisao", label: "Precisão", value: 6 },
     ],
     duckUnits: { altura: "ft", peso: "lb" },
     serialFormat: {
@@ -102,12 +91,12 @@ export const DRONES: DroneModel[] = [
     brand: "DSIN",
     model: "Orion",
     reads: [
-      { key: "velocidade", label: "Velocidade" },
-      { key: "danoTiro", label: "Dano de Tiro" },
-      { key: "taxaTiro", label: "Taxa de Tiro" },
-      { key: "cortaVento", label: "Corta Vento" },
-      { key: "resistencia", label: "Resistência" },
-      { key: "precisao", label: "Precisão" },
+      { key: "velocidade", label: "Velocidade", value: 6 },
+      { key: "danoTiro", label: "Dano de Tiro", value: 9 },
+      { key: "taxaTiro", label: "Taxa de Tiro", value: 5 },
+      { key: "cortaVento", label: "Corta Vento", value: 9 },
+      { key: "resistencia", label: "Resistência", value: 7 },
+      { key: "precisao", label: "Precisão", value: 6 },
     ],
     duckUnits: { altura: "cm", peso: "g" },
     serialFormat: {
